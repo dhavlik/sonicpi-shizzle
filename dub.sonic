@@ -1,0 +1,76 @@
+use_bpm 90
+sample :misc_cineboom
+
+live_loop :master do
+  
+  sleep 8
+  
+end
+
+live_loop :hh do
+  sync :master
+  with_fx :nhpf, cutoff: 10 do
+    with_synth :noise do
+      for i in [ 0.5, 0.25, 0.25, 0.5, 0.5, 1, 1, 1, 1, 1, 0.33, 0.33, 0.3 ]
+        play :c5, release: 0.09, decay:0.01
+        sleep i
+      end
+    end
+  end
+end
+
+
+live_loop :sd do
+  sync :master
+  for i in [ [1,0], [1,0], [1,0], [1,1],
+             [1,0], [1,0], [0.5,0], [0.5,1], [0.9,1], ]
+    sample :drum_snare_hard, amp: i[1]/2.0
+    sleep i[0]
+  end
+end
+
+live_loop :bd do
+  sync :master
+  with_fx :slicer do
+    for i in [1,1,1,1,1,1,1,0.9]
+      sample :bass_dnb_f
+      sleep i
+    end
+  end
+end
+
+live_loop :pop do
+  sync :master
+  for i in [0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.25,0.25,
+            0.5,0.5,0.5,0.5,0.33,0.33,0.33,0.5,0.4]
+    sample :elec_pop, start: 0
+    sleep i
+  end
+end
+
+
+
+live_loop :pro do
+  sync :master
+  use_synth :prophet
+    play_chord [:f4, :g4+1, :c4]
+    sleep 2
+    play_chord [:f4-2, :g4+1-2, :c4-2]
+    sleep 2
+    play_chord [:f4-5, :g4+1-5, :c4-5]
+    sleep 3.9
+end
+
+
+live_loop :playback do 
+sync :master
+
+with_fx :bitcrusher, sample_rate:4000 do
+
+sleep 7.9
+end
+
+end 
+
+
+

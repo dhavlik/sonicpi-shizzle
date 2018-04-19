@@ -1,0 +1,170 @@
+# Welcome to Sonic Pi v2.11.1
+
+use_bpm 80
+
+
+live_loop :set_note_params do
+  b = sync "/midi/lpd8/*/*/note_on"
+  if b[0] == 24 and not get[:nparam1] then
+    set :nparam1, true
+    midi_note_on 24, 100
+  elsif b[0] == 24 and get[:nparam1] then
+    set :nparam1, false
+    midi_note_off 24, 0
+  end
+  if b[0] == 25 and not get[:nparam2] then
+    set :nparam2, true
+    midi_note_on 25, 100
+  elsif b[0] == 25 and get[:nparam2] then
+    set :nparam2, false
+    midi_note_off 25, 100
+  end
+end
+
+
+live_loop :set_cc_params do
+  b = sync "/midi/lpd8/*/*/control_change"
+  if b[0] == 1 then
+    set :param1, 1.0/((b[1]/9)+1)
+  elsif b[0] == 2 then
+    set :param2, b[1]
+  elsif b[0] == 3 then
+    set :param3, b[1]
+  end
+end
+
+
+live_loop :foo do
+  with_fx :bitcrusher, sample_rate:32000, bits: 16 do
+    use_synth :tb303
+    play :c6, pan: 0.25, release: get[:param1], cutoff: get[:param3]
+    sleep 0.75
+    play :c5, release: get[:param1], cutoff: get[:param3]
+    sleep 0.125
+    play :c4, release: get[:param1], pan: 1, amp:0.5, cutoff: get[:param3]
+    sleep 0.125
+    play :c5, release: get[:param1], pan: 1,  amp: 0.5, cutoff: get[:param3]
+    sleep 0.50
+    play :c6, release: get[:param1], cutoff: get[:param3]
+    sleep 0.125
+    play :e6, release: get[:param1], cutoff: get[:param3]
+    sleep 0.125
+    sleep 0.125
+    play :c4, release: get[:param1], pan: 0.75,  amp:0.5, cutoff: get[:param3]
+    sleep 0.0625
+    play :c6, release: get[:param1], amp:0.3, pan:0, cutoff: get[:param3]
+    sleep 0.0625
+  end
+end
+
+live_loop :einsflasher do
+sync :foo
+midi_note_on 31,100
+sleep 0.05
+midi_note_off 31,0
+end
+
+
+
+
+                      live_loop :bass do
+                        use_synth :tb303
+                        sync :foo
+                        sleep 0.25
+                        play :c2, release: 0.25, cutoff: get[:param2]
+                        sleep 0.5
+                        play :c3, release: 0.5, cutoff: get[:param2]
+                        sleep 0.5
+                        play :c2, release: 0.25, cutoff: get[:param2]
+                        sleep 0.25
+                        play :c4, release: 0.25, cutoff: get[:param2]
+                        sleep 0.125
+                        play :c3, release: 0.25, cutoff: get[:param2]
+                        sleep 0.125
+                        play :c2, release: 0.125, cutoff: get[:param2]
+                        sleep 0.24
+
+                      end
+
+
+
+                      live_loop :bd do
+                        with_fx :reverb, room: 0.3 do
+                          with_fx :distortion do
+                            sync :foo
+                            sample :bd_fat, amp:1
+                            sleep 0.5
+                            sample :bd_fat, amp:1
+
+
+                            sleep 0.5
+                            sample :bd_fat, amp:1
+                            sleep 0.5
+                            sample :bd_fat, amp:1
+
+
+                            sleep 0.49
+                          end
+
+                        end
+                      end
+
+                      live_loop :sn do
+                        sync :foo
+                        if get[:nparam1]
+                          sleep 0.5
+                          sample :elec_snare, amp:0.5, start: 0.5
+                          sleep 1
+                          sample :elec_snare, amp:0.5, start: 0.5
+                          sleep 0.4
+
+                        end
+                      end
+
+
+
+                      live_loop :fastsnare do
+                        sync :foo
+                        if get[:nparam2]
+                          set :nparam2, false
+                          sample :elec_snare, start:0.5, amp:0.1
+                          sleep 0.25
+                          sample :elec_snare, start:0.5, amp:0.2
+                          sleep 0.25
+                          sample :elec_snare, start:0.5, amp:0.3
+                          sleep 0.25
+                          sample :elec_snare, start:0.5, amp:0.4
+                          sleep 0.25
+                          sample :elec_snare, start:0.5, amp:0.5
+                          sleep 0.125
+                          sample :elec_snare, start:0.5, amp:0.65
+                          sleep 0.125
+                          sample:elec_snare, start:0.5, amp:0.7
+                          sleep 0.125
+                          sample :elec_snare, start:0.5, amp:0.75
+                          sleep 0.125
+                          sample :elec_snare, start:0.5, amp:0.8
+                          sleep 0.125
+                          sample :elec_snare, start:0.5, amp:0.85
+                          sleep 0.125
+                          sample :elec_snare, start:0.5, amp:0.9
+                          sleep 0.125
+                          sample :elec_snare, start:0.5, amp:0.95
+                          sleep 0.11
+                          midi_note_off 25, 100
+
+                        end
+                      end
+
+                      live_loop :hh do
+                        sync :foo
+                        sleep 0.25
+                        for i in 0..2 do
+                            sample :elec_cymbal, amp:0.2, start:0.7
+                            sleep 0.5
+                          end
+                          sample :elec_cymbal, amp:0.2, start:0.7
+                          sleep 0.125
+                          sample :elec_cymbal, amp:0.2, start:0.7
+                          sleep 0.11
+                        end
